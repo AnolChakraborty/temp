@@ -1,3 +1,5 @@
+// Rail Fence cipher in java
+
 class RailFenceBasic {
     int depth;
 
