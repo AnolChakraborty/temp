@@ -1,3 +1,5 @@
+// playfair cipher in java
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
