@@ -1,72 +1,99 @@
 // Rail Fence cipher in java
 
-class RailFenceBasic {
-    int depth;
-
-    String Encryption(String plainText, int depth) throws Exception {
-        int r = depth, len = plainText.length();
-        int c = len / depth;
-        char mat[][] = new char[r][c];
-        int k = 0;
-
-        String cipherText = "";
-
-        for (int i = 0; i < c; i++) {
-            for (int j = 0; j < r; j++) {
-                if (k != len)
-                    mat[j][i] = plainText.charAt(k++);
-                else
-                    mat[j][i] = 'X';
-            }
-        }
-        for (int i = 0; i < r; i++) {
-            for (int j = 0; j < c; j++) {
-                cipherText += mat[i][j];
-            }
-        }
-        return cipherText;
-    }
-
-    String Decryption(String cipherText, int depth) throws Exception {
-        int r = depth, len = cipherText.length();
-        int c = len / depth;
-        char mat[][] = new char[r][c];
-        int k = 0;
-
-        String plainText = "";
-
-        for (int i = 0; i < r; i++) {
-            for (int j = 0; j < c; j++) {
-                mat[i][j] = cipherText.charAt(k++);
-            }
-        }
-        for (int i = 0; i < c; i++) {
-            for (int j = 0; j < r; j++) {
-                plainText += mat[j][i];
-            }
-        }
-
-        return plainText;
-    }
-}
 
 public final class App {
 
-    public static void main(String[] args) throws Exception {
+    public static class RailFenceCipher {
+        int numRails;
 
-        RailFenceBasic rf = new RailFenceBasic();
-        int depth = 4;
-        String plainText = "Hello World";
+        public RailFenceCipher(int numRails) {
+            this.numRails = numRails;
+        }
 
-        System.out.println("Plain text: " + plainText);
+        String getDecryptedData(String data) {
+            char[] decrypted = new char[data.length()];
+            int n = 0;
+            for (int k = 0; k < numRails; k++) {
+                int index = k;
+                boolean down = true;
+                while (index < data.length()) {
+                    decrypted[index] = data.charAt(n++);
 
-        System.out.println("Depth for Encryption: " + depth);
+                    if (k == 0 || k == numRails - 1) {
+                        index = index + 2 * (numRails - 1);
+                    } else if (down) {
+                        index = index + 2 * (numRails - k - 1);
+                        down = !down;
+                    } else {
+                        index = index + 2 * k;
+                        down = !down;
+                    }
+                }
+            }
+            return new String(decrypted);
+        }
 
-        String cipherText = rf.Encryption(plainText, depth);
-        String decryptedText = rf.Decryption(cipherText, depth);
+        String getEncryptedData(String data) {
+            char[] encrypted = new char[data.length()];
+            int n = 0;
 
-        System.out.println("Encrypted text is:\n" + cipherText);
-        System.out.println("Decrypted text is:\n" + decryptedText);
+            for (int k = 0; k < numRails; k++) {
+                int index = k;
+                boolean down = true;
+                while (index < data.length()) {
+                    encrypted[n++] = data.charAt(index);
 
+                    if (k == 0 || k == numRails - 1) {
+                        index = index + 2 * (numRails - 1);
+                    } else if (down) {
+                        index = index + 2 * (numRails - k - 1);
+                        down = !down;
+                    } else {
+                        index = index + 2 * k;
+                        down = !down;
+                    }
+                }
+            }
+            return new String(encrypted);
+        }
+
+        String getEncryptedData2(String data) {
+            StringBuffer[] sb = new StringBuffer[numRails];
+            for (int i = 0; i < numRails; i++) {
+                sb[i] = new StringBuffer();
+            }
+            int index = 0;
+            int direction = 1;
+            for (int i = 0; i < data.length(); i++) {
+                sb[index].append(data.charAt(i));
+                index = index + direction;
+                if (index == 0) {
+                    direction = 1;
+                } else if (index == numRails) {
+                    if (index == 2) {
+                        index = 0;
+                    } else {
+                        direction = -1;
+                        index = numRails - 2;
+                    }
+                }
+            }
+            for (int i = 1; i < numRails; i++) {
+                sb[0].append(sb[i].toString());
+            }
+            return sb[0].toString();
+        }
+
+        public static void main(String[] args) throws Exception {
+
+            String data = "Hello World";
+            int rails = 4;
+
+            RailFenceCipher railFenceCipher = new RailFenceCipher(rails);
+
+            System.out.println("Plain Text: " + data);
+            System.out.println("Key: " + rails);
+            System.out.println("Encrypted Text: " + railFenceCipher.getEncryptedData(data));
+        }
     }
 }
